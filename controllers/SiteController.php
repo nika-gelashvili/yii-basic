@@ -14,6 +14,7 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use yii\web\UploadedFile;
 use yii\web\NotFoundHttpException;
+use yii\widgets\ActiveForm;
 
 class SiteController extends Controller
 {
@@ -25,13 +26,40 @@ class SiteController extends Controller
         return [
             'access' => [
                 'class' => AccessControl::className(),
-                'only' => ['logout'],
+                'only' => ['logout', 'update', 'delete', 'post', 'register', 'login'],
                 'rules' => [
                     [
                         'actions' => ['logout'],
                         'allow' => true,
                         'roles' => ['@'],
                     ],
+                    [
+                        'actions' => ['register', 'login'],
+                        'allow' => true,
+                        'roles' => ['?'],
+                    ],
+                    [
+                        'actions' => ['register', 'login'],
+                        'allow' => false,
+                        'roles' => ['@'],
+                        'denyCallback' => function () {
+                            return Yii::$app->controller->redirect(['/site/index']);
+                        }
+                    ],
+                    [
+                        'actions' => ['update', 'delete', 'post'],
+                        'allow' => true,
+                        'roles' => ['@'],
+                    ],
+                    [
+                        'actions' => ['update', 'delete', 'post'],
+                        'allow' => false,
+                        'roles' => ['?'],
+                        'denyCallback' => function () {
+                            Yii::$app->session->addFlash('error', "You need to sign in first");
+                            return Yii::$app->controller->redirect(['/site/login']);
+                        }
+                    ]
                 ],
             ],
             'verbs' => [
@@ -77,11 +105,10 @@ class SiteController extends Controller
                 ]
             ],
         ]);
-        return $this->render('index',
-            [
-                'dataProvider' => $dataProvider,
-                'post' => $model
-            ]);
+        return $this->render('index', [
+            'dataProvider' => $dataProvider,
+            'post' => $model
+        ]);
     }
 
     /**
@@ -91,10 +118,6 @@ class SiteController extends Controller
      */
     public function actionLogin()
     {
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
-
         $model = new LoginForm();
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
@@ -123,27 +146,22 @@ class SiteController extends Controller
      */
     public function actionPost()
     {
-        if (!Yii::$app->user->isGuest) {
-            $post = new Post();
-            if ($post->load(Yii::$app->request->post())) {
-                $fileName = Yii::$app->formatter->asTimestamp(date('Y-d-m h:i:s'));
-                $post->file = UploadedFile::getInstance($post, 'file');
-                $post->user_id = Yii::$app->user->identity->getId();
-                if ($post->validate()) {
-                    $post->post_image = 'uploads/' . $fileName . '.' . $post->file->extension;
-                    $post->save();
-                    $post->file->saveAs('uploads/' . $fileName . '.' . $post->file->extension);
-                    return $this->goHome();
-                }
+        $post = new Post();
+        if ($post->load(Yii::$app->request->post())) {
+            $fileName = Yii::$app->formatter->asTimestamp(date('Y-d-m h:i:s'));
+            $post->file = UploadedFile::getInstance($post, 'file');
+            $post->user_id = Yii::$app->user->identity->getId();
+            if ($post->validate()) {
+                $post->post_image = 'uploads/' . $fileName . '.' . $post->file->extension;
+                $post->save();
+                $post->file->saveAs('uploads/' . $fileName . '.' . $post->file->extension);
+                return $this->goHome();
             }
-
-            return $this->render('post', [
-                'post' => $post
-            ]);
-        } else {
-            Yii::$app->session->addFlash('error', "You need to sign in first");
-            return $this->redirect(['site/login']);
         }
+
+        return $this->render('post', [
+            'post' => $post
+        ]);
     }
 
     /**
@@ -207,35 +225,38 @@ class SiteController extends Controller
      */
     public function actionUpdate($id)
     {
-        if (!Yii::$app->user->isGuest) {
-            $post = $this->findModel($id);
-            if (Post::find()->select('user_id')->where(['id' => $id])->scalar() == Yii::$app->user->identity->getId()) {
-                if ($post->load(Yii::$app->request->post()) && $post->save()) {
-                    return $this->redirect(['view', 'id' => $post->id]);
-                }
-                return $this->render('update', [
-                    'post' => $post,
-                ]);
-            } else {
-                Yii::$app->session->addFlash('error', "You are not allowed to do that");
-                return $this->redirect(['view', 'id' => $post->id]);
-            }
+        Yii::$app->session->addFlash('error', "You need to sign in first");
+        return $this->actionLogin();
 
-        } else {
-            Yii::$app->session->addFlash('error', "You need to sign in first");
-            return $this->actionLogin();
+        $post = $this->findModel($id);
+
+        $result = Post::find()
+            ->select('user_id')
+            ->where(['id' => $id])
+            ->scalar();
+
+        if ($result != Yii::$app->user->identity->getId()) {
+            Yii::$app->session->addFlash('error', "You are not allowed to do that");
+            return $this->redirect(['view', 'id' => $post->id]);
         }
+
+
+        if (!$post->load(Yii::$app->request->post()) || !$post->save()) {
+            return $this->render('update', [
+                'post' => $post,
+            ]);
+        }
+
+        return $this->redirect(['view', 'id' => $post->id]);
     }
 
     public function actionDelete($id)
     {
-        if (!Yii::$app->user->isGuest) {
-            if (Post::find()->select('user_id')->where(['id' => $id])->scalar() == Yii::$app->user->identity->getId()) {
-                $this->findModel($id)->delete();
-                return $this->redirect(['index']);
-            } else {
-                Yii::$app->session->addFlash('error', "You are not allowed to do that");
-            }
+        if (Post::find()->select('user_id')->where(['id' => $id])->scalar() == Yii::$app->user->identity->getId()) {
+            $this->findModel($id)->delete();
+            return $this->redirect(['index']);
+        } else {
+            Yii::$app->session->addFlash('error', "You are not allowed to do that");
         }
         Yii::$app->session->addFlash('error', "You need to sign in first");
         return $this->actionLogin();
@@ -243,9 +264,6 @@ class SiteController extends Controller
 
     public function actionRegister()
     {
-        if (!Yii::$app->user->isGuest) {
-            return $this->goHome();
-        }
         $model = new User();
         if ($model->load(Yii::$app->request->post())) {
             $model->setPassword($model->rawPassword);

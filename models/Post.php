@@ -20,7 +20,7 @@ class Post extends ActiveRecord
         return [
             [['post_title', 'user_id'], 'required'],
             [['user_id'], 'integer'],
-            [['file'], 'file', 'skipOnEmpty' => false, 'extensions' => 'jpeg, png, jpg'],
+            [['file'], 'file', 'skipOnEmpty' => false, 'extensions' => 'jpeg, png, jpg','maxFiles'=>4],
             [['post_image'], 'string', 'max' => 30],
             [['post_title'], 'string', 'max' => 45],
             [['post_description'], 'string', 'max' => 300],

@@ -13,8 +13,8 @@ class AboutForm extends ActiveRecord
     public function rules()
     {
         return [
-            ['title','string','max'=>45],
-            ['description','string','max'=>300],
+            ['title', 'string', 'max' => 45],
+            ['description', 'string', 'max' => 300],
             [['imageFile'], 'file', 'skipOnEmpty' => false, 'extensions' => 'png, jpg'],
         ];
     }

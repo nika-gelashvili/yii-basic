@@ -51,6 +51,7 @@ class Comment extends \yii\db\ActiveRecord
             'post_id' => 'Post ID',
         ];
     }
+
     public function getPosts()
     {
         return $this->hasOne(Post::className(), ['id' => 'post_id']);
