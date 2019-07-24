@@ -2,7 +2,6 @@
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Post */
-
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 use yii\grid\GridView;
@@ -23,7 +22,7 @@ $this->title = 'Posts';
         <?php return Yii::$app->session->getFlash('error') ?>
     </div>
 <?php endif; ?>
-<p>
+<p style="margin-bottom: 25px; margin-top: 20px;">
     <?php echo HTML::a('Create Post', ['post'], ['class' => 'btn btn-primary']) ?>
 </p>
 <!--

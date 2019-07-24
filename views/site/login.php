@@ -15,10 +15,13 @@ $this->params['breadcrumbs'][] = $this->title;
     <h1><?= Html::encode($this->title) ?></h1>
     <?php if (Yii::$app->session->hasFlash('error')) : ?>
         <div class="alert alert-warning">
-            <?php  Yii::$app->session->getFlash('error') ?>
+            <?php Yii::$app->session->getFlash('error') ?>
+        </div>
+    <?php elseif (Yii::$app->session->hasFlash('success')): ?>
+        <div class="alert alert-success">
+            <?php Yii::$app->session->getFlash('success') ?>
         </div>
     <?php endif; ?>
-
     <p>Please fill out the following fields to login:</p>
 
     <?php $form = ActiveForm::begin([

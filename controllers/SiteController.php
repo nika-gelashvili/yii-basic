@@ -99,7 +99,6 @@ class SiteController extends Controller
         if ($model->load(Yii::$app->request->post()) && $model->login()) {
             return $this->goBack();
         }
-        $model->password = '';
         return $this->render('login', [
             'model' => $model,
         ]);
@@ -219,7 +218,7 @@ class SiteController extends Controller
                 ]);
             } else {
                 Yii::$app->session->addFlash('error', "You are not allowed to do that");
-                return $this->redirect(['view','id' => $post->id]);
+                return $this->redirect(['view', 'id' => $post->id]);
             }
 
         } else {
@@ -240,5 +239,23 @@ class SiteController extends Controller
         }
         Yii::$app->session->addFlash('error', "You need to sign in first");
         return $this->actionLogin();
+    }
+
+    public function actionRegister()
+    {
+        if (!Yii::$app->user->isGuest) {
+            return $this->goHome();
+        }
+        $model = new User();
+        if ($model->load(Yii::$app->request->post())) {
+            $model->setPassword($model->rawPassword);
+            $model->generateAuthKey();
+            $model->save();
+            Yii::$app->session->setFlash('success', "You have signed up successfully. Now you can Log In");
+            return $this->redirect(['site/login']);
+        }
+        return $this->render('register', [
+            'model' => $model
+        ]);
     }
 }

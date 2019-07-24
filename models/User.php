@@ -6,6 +6,7 @@ use yii\db\ActiveRecord;
 
 class User extends ActiveRecord implements \yii\web\IdentityInterface
 {
+    public $rawPassword;
 
     public static function tableName()
     {
@@ -15,11 +16,11 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
     public function rules()
     {
         return [
-            [['username', 'password'], 'string', 'max' => 16],
-            [['auth_key'], 'string', 'max' => 50],
-            [['username'], 'unique'],
-            [['auth_key'], 'unique'],
-            [['username', 'password'], 'required']
+            [['auth_key', 'password'], 'string', 'max' => 128],
+            [['username'], 'unique', 'targetClass' => '\app\models\User', 'message' => 'This username has already been taken'],
+            [['username', 'password', 'rawPassword'], 'required'],
+            [['username', 'rawPassword'], 'string', 'max' => 16],
+            [['username', 'password', 'rawPassword', 'auth_key'], 'safe']
         ];
     }
 
@@ -28,7 +29,7 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
         return [
             'id' => \Yii::t('app', 'ID'),
             'username' => \Yii::t('app', 'Username'),
-            'password' => \Yii::t('app', 'Password'),
+            'rawPassword' => \Yii::t('app', 'Password'),
             'auth_key' => \Yii::t('app', 'Authorisation Key'),
         ];
     }
@@ -102,6 +103,16 @@ class User extends ActiveRecord implements \yii\web\IdentityInterface
      */
     public function validatePassword($password)
     {
-        return $this->password === $password;
+        return \Yii::$app->security->validatePassword($password, $this->password);
+    }
+
+    public function setPassword($password)
+    {
+        $this->password = \Yii::$app->security->generatePasswordHash($password);
+    }
+
+    public function generateAuthKey()
+    {
+        $this->auth_key = \Yii::$app->security->generateRandomString();
     }
 }

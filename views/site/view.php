@@ -50,27 +50,32 @@ $this->params['breadcrumbs'][] = $this->title;
         ],
     ]) ?>
 
-    <?= GridView::widget([
+    <?php echo \yii\widgets\ListView::widget([
+        'dataProvider' => $dataProvider,
+        'itemView' => '_commentlist'
+    ]) ?>
+
+    <!-- GridView::widget([
         'dataProvider' => $dataProvider,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
             'users.username',
             'message_text',
         ]
-    ]) ?>
+    ]) -->
 
     <?php $form = ActiveForm::begin([
         'id' => 'comment-form',
     ]); ?>
-
     <?= $form->field($comment, 'message_text')->textInput(['autofocus' => true])->label('Comment') ?>
     <?php if (!Yii::$app->user->isGuest): ?>
         <div class="form-group">
             <?= Html::submitButton('Submit', ['class' => 'btn btn-primary']) ?>
         </div>
+    <?php else: ?>
+        <div class="form-group">
+            <?= Html::a('Sign in', ['login'], ['class' => 'btn btn-primary']) ?>
+        </div>
     <?php endif; ?>
-    <div class="form-group">
-        <?= Html::a('Sign in',['login'] ,['class' => 'btn btn-primary']) ?>
-    </div>
     <?php ActiveForm::end(); ?>
 </div>

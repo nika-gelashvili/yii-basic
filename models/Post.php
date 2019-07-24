@@ -35,7 +35,7 @@ class Post extends ActiveRecord
             'id' => \Yii::t('app', 'id'),
             'post_title' => \Yii::t('app', 'Title of Post'),
             'post_image' => \Yii::t('app', 'Image'),
-            'post_description' => \Yii::t('app', 'Description'),
+            'post_description' => \Yii::t('app', 'Text'),
             'file' => \Yii::t('app', 'Post Image')
         ];
     }
