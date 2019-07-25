@@ -33,8 +33,8 @@ class Image extends \yii\db\ActiveRecord
             [['post_id'], 'required'],
             [['post_id'], 'integer'],
             [['created_at'], 'safe'],
-            [['image'], 'string', 'max' => 255],
-            [['post_id'], 'exist', 'skipOnError' => true, 'targetClass' => Posts::className(), 'targetAttribute' => ['post_id' => 'id']],
+            [['image'], 'file', 'extensions' => 'png,jpg,gif,jpeg','maxFiles'=>4,'skipOnEmpty'=>false],
+            [['post_id'], 'exist', 'skipOnError' => true, 'targetClass' => Post::className(), 'targetAttribute' => ['post_id' => 'id']],
         ];
     }
 
@@ -54,7 +54,7 @@ class Image extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getPost()
+    public function getPosts()
     {
         return $this->hasOne(Post::className(), ['id' => 'post_id']);
     }

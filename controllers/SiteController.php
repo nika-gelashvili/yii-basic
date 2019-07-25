@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\Comment;
+use app\models\Image;
 use app\models\Post;
 use app\models\User;
 use Yii;
@@ -146,20 +147,32 @@ class SiteController extends Controller
      */
     public function actionPost()
     {
+        $upload = new Image();
         $post = new Post();
-        if ($post->load(Yii::$app->request->post())) {
-            $fileName = Yii::$app->formatter->asTimestamp(date('Y-d-m h:i:s'));
-            $post->file = UploadedFile::getInstance($post, 'file');
+        if ($post->load(Yii::$app->request->post()) && $upload->load(Yii::$app->request->post())) {
+            $fileName = Yii::$app->formatter->asTimestamp(date('Y-d-m h:i:s')) . rand(1, 999);
+            $upload->image = UploadedFile::getInstances($upload, 'image');
             $post->user_id = Yii::$app->user->identity->getId();
-            if ($post->validate()) {
-                $post->post_image = 'uploads/' . $fileName . '.' . $post->file->extension;
-                $post->save();
-                $post->file->saveAs('uploads/' . $fileName . '.' . $post->file->extension);
-                return $this->goHome();
+            if ($post->validate() && $post->validate()) {
+                if ($post->save()) {
+                    foreach ($upload->image as $image) {
+                        $model = new Image();
+                        $model->post_id = $post->id;
+                        $model->image = $fileName . '.' . $image->extension;
+                        if ($model->save(false)) {
+                            $image->saveAs('uploads/' . $model->image);
+                        }
+                    }
+                    return $this->goHome();
+                }
+                return var_dump($post->save());
             }
+            return var_dump($post->validate(),$post->validate());
         }
+        //return var_dump($post->load(Yii::$app->request->post()) , $upload->load(Yii::$app->request->post()));
 
         return $this->render('post', [
+            'upload' => $upload,
             'post' => $post
         ]);
     }

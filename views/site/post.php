@@ -2,7 +2,8 @@
 
 /* @var $this yii\web\View */
 /* @var $form yii\widgets\ActiveForm */
-/** @var \app\models\Post $post */
+/** @var $post \app\models\Post  */
+/* @var $upload \app\models\Image */
 
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
@@ -24,7 +25,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= $form->field($post, 'post_description')->textInput()->label('Description') ?>
 
 
-    <?= $form->field($post, 'file')->fileInput(['multiple'=>true,'accept'=>'image/*'])?>
+    <?=$form->field($upload, 'image[]')->fileInput(['multiple'=>true,'accept'=>'image/*'])?>
 
     <div class="form-group">
         <?= Html::submitButton('Submit', ['class' => 'btn btn-primary']) ?>
