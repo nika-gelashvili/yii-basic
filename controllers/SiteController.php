@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\models\Comment;
 use app\models\Image;
 use app\models\Post;
+use app\models\PostTranslation;
 use app\models\User;
 use Yii;
 use yii\data\ActiveDataProvider;
@@ -148,12 +149,16 @@ class SiteController extends Controller
     public function actionPost()
     {
         $upload = new Image();
+        $postTranslation = new PostTranslation();
         $post = new Post();
         if ($post->load(Yii::$app->request->post()) && $upload->load(Yii::$app->request->post())) {
             $fileName = Yii::$app->formatter->asTimestamp(date('Y-d-m h:i:s')) . rand(1, 999);
             $upload->image = UploadedFile::getInstances($upload, 'image');
+            $uploadThumbnail=UploadedFile::getInstance($post,'post_image');
             $post->user_id = Yii::$app->user->identity->getId();
-            if ($post->validate() && $post->validate()) {
+            $postTranslation->locale = 'en';
+            $post->post_image=$fileName.'.'.$uploadThumbnail->extension;
+            if ($post->validate() && $upload->validate() && $postTranslation->validate()) {
                 if ($post->save()) {
                     foreach ($upload->image as $image) {
                         $model = new Image();
@@ -173,7 +178,8 @@ class SiteController extends Controller
 
         return $this->render('post', [
             'upload' => $upload,
-            'post' => $post
+            'post' => $post,
+            'postTranslation'=>$postTranslation
         ]);
     }
 
@@ -191,9 +197,9 @@ class SiteController extends Controller
             $comment->post_id = $id;
             $comment->user_id = Yii::$app->user->identity->getId();
             if ($comment->validate()) {
-               if($comment->save()){
-                   $this->refresh();
-               }
+                if ($comment->save()) {
+                    $this->refresh();
+                }
             }
         }
         $dataProvider = new ActiveDataProvider([
@@ -228,7 +234,7 @@ class SiteController extends Controller
             'model' => $this->findModel($id),
             'dataProvider' => $dataProvider,
             'comment' => $comment,
-            'postDataProvider'=>$postDataProvider
+            'postDataProvider' => $postDataProvider
         ]);
     }
 
@@ -299,7 +305,7 @@ class SiteController extends Controller
         if ($model->load(Yii::$app->request->post())) {
             $model->setPassword($model->rawPassword);
             $model->generateAuthKey();
-            if($model->save()) {
+            if ($model->save()) {
                 Yii::$app->session->setFlash('success', "You have signed up successfully. Now you can Log In");
                 return $this->redirect(['site/login']);
             }

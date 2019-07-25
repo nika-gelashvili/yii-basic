@@ -20,8 +20,6 @@ class Post extends ActiveRecord
         return [
             [['post_title', 'user_id'], 'required'],
             [['user_id'], 'integer'],
-            [['post_title'], 'string', 'max' => 45],
-            [['post_description'], 'string', 'max' => 300],
             [['post_image'],'file','extensions' => 'png,jpg,gif,jpeg','skipOnEmpty'=>false],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']]
         ];
@@ -30,11 +28,9 @@ class Post extends ActiveRecord
     public function attributeLabels()
     {
         return [
-            'user_id' => \Yii::t('app', 'User ID'),
-            'id' => \Yii::t('app', 'id'),
-            'post_title' => \Yii::t('app', 'Title of Post'),
-            'post_description' => \Yii::t('app', 'Text'),
-            'file' => \Yii::t('app', 'Post Image')
+            'user_id' => 'User ID',
+            'id' => 'id',
+            'post_image'=>'Thumbnail'
         ];
     }
 
@@ -51,5 +47,8 @@ class Post extends ActiveRecord
     public function getImages()
     {
         return $this->hasMany(Image::className(), ['post_id' => 'id']);
+    }
+    public function getPostTranslation(){
+        return $this->hasMany(PostTranslation::className(),['post_id'=>'id']);
     }
 }
