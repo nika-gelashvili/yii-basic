@@ -24,7 +24,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= $form->field($post, 'post_description')->textInput()->label('Description') ?>
 
 
-    <?= $form->field($post, 'file')->fileInput() ?>
+    <?= $form->field($post, 'file')->fileInput(['multiple'=>true,'accept'=>'image/*'])?>
 
     <div class="form-group">
         <?= Html::submitButton('Submit', ['class' => 'btn btn-primary']) ?>
