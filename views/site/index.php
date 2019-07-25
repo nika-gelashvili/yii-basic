@@ -1,7 +1,8 @@
 <?php
 
 /* @var $this yii\web\View */
-/* @var $model app\models\Post */
+/* @var $post app\models\Post */
+
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
 use yii\grid\GridView;

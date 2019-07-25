@@ -4,11 +4,12 @@ use yii\widgets\ActiveForm;
 use yii\data\ActiveDataProvider;
 use yii\helpers\Html;
 use yii\widgets\DetailView;
-use yii\grid\GridView;
+use yii\widgets\ListView;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\Post */
 /* @var $dataProvider yii\data\ActiveDataProvider */
+/* @var $postDataProvider ActiveDataProvider */
 /* @var $comment \app\models\Comment */
 
 $this->title = $model->post_title;
@@ -17,8 +18,6 @@ $this->params['breadcrumbs'][] = $this->title;
 \yii\web\YiiAsset::register($this);
 ?>
 <div class="post-view">
-
-    <h1><?= Html::encode($this->title) ?></h1>
     <?php if (Yii::$app->session->hasFlash('notAllowed')) : ?>
         <div class="alert alert-warning alert-dismissable">
             <button aria-hidden="true" data-dismiss="alert" class="close" type="button">×</button>
@@ -37,22 +36,16 @@ $this->params['breadcrumbs'][] = $this->title;
         ]) ?>
     <?php endif; ?>
 
-    <?= DetailView::widget([
-        'model' => $model,
-        'attributes' => [
-            'post_description',
-
-            [
-                'attribute' => 'post_image',
-                'value' => $model->post_image,
-                'format' => ['image', ['width' => 200, 'height' => 'auto']]
-            ]
-        ],
+    <?php echo ListView::widget([
+        'dataProvider' => $postDataProvider,
+        'itemView'=>'_postview',
+        'summary'=>''
     ]) ?>
 
-    <?php echo \yii\widgets\ListView::widget([
+    <?php echo ListView::widget([
         'dataProvider' => $dataProvider,
-        'itemView' => '_commentlist'
+        'itemView' => '_commentlist',
+        'summary'=>''
     ]) ?>
 
     <!-- GridView::widget([

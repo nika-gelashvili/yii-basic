@@ -165,9 +165,9 @@ class SiteController extends Controller
                     }
                     return $this->goHome();
                 }
-                return var_dump($post->save());
+                //return var_dump($post->save());
             }
-            return var_dump($post->validate(),$post->validate());
+            //return var_dump($post->validate(),$post->validate());
         }
         //return var_dump($post->load(Yii::$app->request->post()) , $upload->load(Yii::$app->request->post()));
 
@@ -186,16 +186,34 @@ class SiteController extends Controller
     public function actionView($id)
     {
         $comment = new Comment();
-        if ($comment->load(Yii::$app->request->post()) && !Yii::$app->user->isGuest) {
+        if ($comment->load(Yii::$app->request->post())) {
             $comment->created_at = new \yii\db\Expression('NOW()');
             $comment->post_id = $id;
             $comment->user_id = Yii::$app->user->identity->getId();
             if ($comment->validate()) {
-                $comment->save();
+               if($comment->save()){
+                   $this->refresh();
+               }
             }
         }
         $dataProvider = new ActiveDataProvider([
-            'query' => Comment::find()->select(['comments.*', 'users.username'])->joinWith('users')->where(['post_id' => $id]),
+            'query' => Comment::find()
+                ->select(['comments.*', 'users.username'])
+                ->joinWith('users')
+                ->where(['post_id' => $id]),
+            'pagination' => [
+                'pageSize' => 20,
+            ],
+            'sort' => [
+                'defaultOrder' => [
+                    'id' => SORT_ASC,
+                ]
+            ],
+        ]);
+
+        $postDataProvider = new ActiveDataProvider([
+            'query' => Post::find()
+                ->where(['id' => $id]),
             'pagination' => [
                 'pageSize' => 20,
             ],
@@ -209,7 +227,8 @@ class SiteController extends Controller
         return $this->render('view', [
             'model' => $this->findModel($id),
             'dataProvider' => $dataProvider,
-            'comment' => $comment
+            'comment' => $comment,
+            'postDataProvider'=>$postDataProvider
         ]);
     }
 
@@ -242,7 +261,6 @@ class SiteController extends Controller
         return $this->actionLogin();
 
         $post = $this->findModel($id);
-
         $result = Post::find()
             ->select('user_id')
             ->where(['id' => $id])
@@ -281,9 +299,10 @@ class SiteController extends Controller
         if ($model->load(Yii::$app->request->post())) {
             $model->setPassword($model->rawPassword);
             $model->generateAuthKey();
-            $model->save();
-            Yii::$app->session->setFlash('success', "You have signed up successfully. Now you can Log In");
-            return $this->redirect(['site/login']);
+            if($model->save()) {
+                Yii::$app->session->setFlash('success', "You have signed up successfully. Now you can Log In");
+                return $this->redirect(['site/login']);
+            }
         }
         return $this->render('register', [
             'model' => $model

@@ -22,6 +22,7 @@ class Post extends ActiveRecord
             [['user_id'], 'integer'],
             [['post_title'], 'string', 'max' => 45],
             [['post_description'], 'string', 'max' => 300],
+            [['post_image'],'file','extensions' => 'png,jpg,gif,jpeg','skipOnEmpty'=>false],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']]
         ];
     }

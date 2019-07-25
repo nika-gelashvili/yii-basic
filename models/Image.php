@@ -21,7 +21,7 @@ class Image extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'images';
+        return '{{images}}';
     }
 
     /**
