@@ -1,5 +1,5 @@
 <?php
-/* @var $model app\models\Post */
+/* @var $model app\models\PostTranslation */
 use app\models\Post;
 use yii\helpers\Html;
 use yii\helpers\StringHelper;
@@ -10,15 +10,16 @@ use yii\helpers\StringHelper;
     <div style="padding: 5px; overflow:auto; width:50%;">
         <p style="float:left; margin-right: 15px;">
             <?php
-            foreach ($model->images as $image) {
-                echo Html::img('uploads/'.$image->image, ['width' => '150px', 'height' => '100px']);
-            } ?>
+            //foreach ($model->images as $image) {
+                echo Html::img('uploads/'.$model->post->post_image, ['width' => '150px', 'height' => '100px']);
+            //}
+            ?>
         </p>
         <p style="font-size: medium">
-            <?php echo StringHelper::truncateWords(Html::encode($model->post_description), 5) ?>
+            <?php echo StringHelper::truncateWords(Html::encode($model->post_short_description), 5) ?>
         </p>
         <p>
-            <?= Html::a('View', ['view', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
+            <?= Html::a('View', ['view', 'id' => $model->post->id], ['class' => 'btn btn-primary']) ?>
         </p>
     </div>
 </div>

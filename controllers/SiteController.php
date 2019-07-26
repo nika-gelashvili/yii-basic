@@ -95,9 +95,9 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
-        $model = new Post();
+        $model = new PostTranslation();
         $dataProvider = new ActiveDataProvider([
-            'query' => Post::find(),
+            'query' => PostTranslation::find(),
             'pagination' => [
                 'pageSize' => 20,
             ],
@@ -158,7 +158,8 @@ class SiteController extends Controller
             $post->user_id = Yii::$app->user->identity->getId();
             $postTranslation->locale = 'en';
             $post->post_image=$fileName.'.'.$uploadThumbnail->extension;
-            if ($post->validate() && $upload->validate() && $postTranslation->validate()) {
+            //if ($post->validate() && $upload->validate() && $postTranslation->validate()) {
+            $post->file->saveAs('uploads/'.$post->post_image);
                 if ($post->save()) {
                     foreach ($upload->image as $image) {
                         $model = new Image();
@@ -170,16 +171,16 @@ class SiteController extends Controller
                     }
                     return $this->goHome();
                 }
-                //return var_dump($post->save());
-            }
-            //return var_dump($post->validate(),$post->validate());
+                return var_dump($post->save(),$post->file->saveAs('uploads/'.$post->post_image));
+            //}
+            //return var_dump($post->validate(),$upload->validate(),$postTranslation->validate());
         }
         //return var_dump($post->load(Yii::$app->request->post()) , $upload->load(Yii::$app->request->post()));
 
         return $this->render('post', [
             'upload' => $upload,
             'post' => $post,
-            'postTranslation'=>$postTranslation
+            'postTranslation' => $postTranslation
         ]);
     }
 

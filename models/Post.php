@@ -8,7 +8,7 @@ use yii\db\ActiveRecord;
 
 class Post extends ActiveRecord
 {
-    //public $file;
+    public $file;
 
     public static function tableName()
     {
@@ -18,9 +18,10 @@ class Post extends ActiveRecord
     public function rules()
     {
         return [
-            [['post_title', 'user_id'], 'required'],
+            [['user_id', 'post_image'], 'required'],
             [['user_id'], 'integer'],
-            [['post_image'],'file','extensions' => 'png,jpg,gif,jpeg','skipOnEmpty'=>false],
+            [['post_image'], 'string'],
+            [['file'], 'file', 'extensions' => 'png,jpg,gif,jpeg', 'skipOnEmpty' => false],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::className(), 'targetAttribute' => ['user_id' => 'id']]
         ];
     }
@@ -30,7 +31,7 @@ class Post extends ActiveRecord
         return [
             'user_id' => 'User ID',
             'id' => 'id',
-            'post_image'=>'Thumbnail'
+            'post_image' => 'Thumbnail'
         ];
     }
 
@@ -48,7 +49,9 @@ class Post extends ActiveRecord
     {
         return $this->hasMany(Image::className(), ['post_id' => 'id']);
     }
-    public function getPostTranslation(){
-        return $this->hasMany(PostTranslation::className(),['post_id'=>'id']);
+
+    public function getPostTranslation()
+    {
+        return $this->hasMany(PostTranslation::className(), ['post_id' => 'id']);
     }
 }
