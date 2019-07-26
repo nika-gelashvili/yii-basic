@@ -31,7 +31,8 @@ class Post extends ActiveRecord
         return [
             'user_id' => 'User ID',
             'id' => 'id',
-            'post_image' => 'Thumbnail'
+            'post_image' => 'Thumbnail',
+            'file' => 'Thumbnail'
         ];
     }
 

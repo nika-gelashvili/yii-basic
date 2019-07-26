@@ -23,7 +23,7 @@ class PostTranslation extends \yii\db\ActiveRecord
      */
     public static function tableName()
     {
-        return 'post_translation';
+        return '{{post_translation}}';
     }
 
     /**

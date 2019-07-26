@@ -4,6 +4,7 @@
 /* @var $form yii\widgets\ActiveForm */
 /* @var $post \app\models\Post */
 /* @var $postTranslation \app\models\PostTranslation */
+
 /* @var $upload \app\models\Image */
 
 use yii\bootstrap\ActiveForm;
@@ -27,7 +28,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?= $form->field($postTranslation, 'post_short_description')->textInput()->label('Description') ?>
 
-    <?= $form->field($post, 'post_image')->fileInput() ?>
+    <?= $form->field($post, 'post_image')->fileInput(['accept' => 'image/*'])->label('Thumbnail') ?>
 
     <?= $form->field($upload, 'image[]')->fileInput(['multiple' => true, 'accept' => 'image/*'])->label('Post Images') ?>
 

@@ -1,5 +1,5 @@
 <?php
-/* @var $model \app\models\Post */
+/* @var $model \app\models\PostTranslation */
 ?>
 <div style="margin-top: 20px;margin-bottom: 30px;">
     <div>
@@ -10,15 +10,15 @@
         <p>
             <?php
             $images = [];
-            foreach ($model->images as $imageItem) {
+            foreach ($model->post->images as $imageItem) {
                 $images[] = '<img src="' . 'uploads/' . $imageItem->image . '"/>';
             }
             echo \yii\bootstrap\Carousel::widget([
                 'items' => $images,
                 'options' => [
                     'style' => [
-                        'width'=>'350px',
-                        'height'=>'150px',
+                        'width' => '350px',
+                        'height' => '150px',
                     ]
                 ]
             ]) ?>

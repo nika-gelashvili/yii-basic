@@ -7,7 +7,7 @@ use yii\widgets\DetailView;
 use yii\widgets\ListView;
 
 /* @var $this yii\web\View */
-/* @var $model app\models\Post */
+/* @var $model app\models\PostTranslation */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 /* @var $postDataProvider ActiveDataProvider */
 /* @var $comment \app\models\Comment */
@@ -25,9 +25,9 @@ $this->params['breadcrumbs'][] = $this->title;
             <?php Yii::$app->session->getFlash('notAllowed') ?>
         </div>
     <?php endif; ?>
-    <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity->getId() == $model->user_id): ?>
-        <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
+    <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity->getId() == $model->post ? $model->post->user_id : 0): ?>
+        <?= Html::a('Update', ['update', 'id' => $model->post_id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('Delete', ['delete', 'id' => $model->post_id], [
             'class' => 'btn btn-danger',
             'data' => [
                 'confirm' => 'Are you sure you want to delete this item?',
@@ -38,14 +38,14 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php echo ListView::widget([
         'dataProvider' => $postDataProvider,
-        'itemView'=>'_postview',
-        'summary'=>''
+        'itemView' => '_postview',
+        'summary' => ''
     ]) ?>
 
     <?php echo ListView::widget([
         'dataProvider' => $dataProvider,
         'itemView' => '_commentlist',
-        'summary'=>''
+        'summary' => ''
     ]) ?>
 
     <!-- GridView::widget([

@@ -33,7 +33,7 @@ class Image extends \yii\db\ActiveRecord
             [['post_id'], 'required'],
             [['post_id'], 'integer'],
             [['created_at'], 'safe'],
-            [['image'], 'file', 'extensions' => 'png,jpg,gif,jpeg','maxFiles'=>4,'skipOnEmpty'=>false],
+            [['image'], 'file', 'extensions' => 'png,jpg,gif,jpeg', 'maxFiles' => 4, 'skipOnEmpty' => false],
             [['post_id'], 'exist', 'skipOnError' => true, 'targetClass' => Post::className(), 'targetAttribute' => ['post_id' => 'id']],
         ];
     }

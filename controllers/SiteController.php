@@ -151,32 +151,34 @@ class SiteController extends Controller
         $upload = new Image();
         $postTranslation = new PostTranslation();
         $post = new Post();
-        if ($post->load(Yii::$app->request->post()) && $upload->load(Yii::$app->request->post())) {
+        if ($post->load(Yii::$app->request->post()) && $upload->load(Yii::$app->request->post()) && $postTranslation->load(Yii::$app->request->post())) {
             $fileName = Yii::$app->formatter->asTimestamp(date('Y-d-m h:i:s')) . rand(1, 999);
             $upload->image = UploadedFile::getInstances($upload, 'image');
-            $uploadThumbnail=UploadedFile::getInstance($post,'post_image');
+            $post->file = UploadedFile::getInstance($post, 'post_image');
             $post->user_id = Yii::$app->user->identity->getId();
             $postTranslation->locale = 'en';
-            $post->post_image=$fileName.'.'.$uploadThumbnail->extension;
-            //if ($post->validate() && $upload->validate() && $postTranslation->validate()) {
-            $post->file->saveAs('uploads/'.$post->post_image);
+            $post->post_image = $fileName . '.' . $post->file->extension;
+            if ($post->validate()) {
                 if ($post->save()) {
-                    foreach ($upload->image as $image) {
-                        $model = new Image();
-                        $model->post_id = $post->id;
-                        $model->image = $fileName . '.' . $image->extension;
-                        if ($model->save(false)) {
-                            $image->saveAs('uploads/' . $model->image);
+                    $post->file->saveAs('uploads/' . $post->post_image . $post->file->extension);
+                    $postTranslation->post_id = $post->id;
+                    if ($postTranslation->validate()) {
+                        if ($postTranslation->save()) {
+                            foreach ($upload->image as $image) {
+                                $model = new Image();
+                                $model->post_id = $post->id;
+                                $model->image = $fileName . '.' . $image->extension;
+                                if ($model->save(false)) {
+                                    $image->saveAs('uploads/' . $model->image);
+                                }
+                            }
+                            return $this->goHome();
                         }
                     }
-                    return $this->goHome();
+                    return var_dump($postTranslation->validate());
                 }
-                return var_dump($post->save(),$post->file->saveAs('uploads/'.$post->post_image));
-            //}
-            //return var_dump($post->validate(),$upload->validate(),$postTranslation->validate());
+            }
         }
-        //return var_dump($post->load(Yii::$app->request->post()) , $upload->load(Yii::$app->request->post()));
-
         return $this->render('post', [
             'upload' => $upload,
             'post' => $post,
@@ -190,8 +192,10 @@ class SiteController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionView($id)
+    public
+    function actionView($id)
     {
+        $postTranslation = new PostTranslation();
         $comment = new Comment();
         if ($comment->load(Yii::$app->request->post())) {
             $comment->created_at = new \yii\db\Expression('NOW()');
@@ -219,8 +223,8 @@ class SiteController extends Controller
         ]);
 
         $postDataProvider = new ActiveDataProvider([
-            'query' => Post::find()
-                ->where(['id' => $id]),
+            'query' => PostTranslation::find()
+                ->where(['post_id' => $id]),
             'pagination' => [
                 'pageSize' => 20,
             ],
@@ -232,7 +236,7 @@ class SiteController extends Controller
         ]);
 
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' => $postTranslation,
             'dataProvider' => $dataProvider,
             'comment' => $comment,
             'postDataProvider' => $postDataProvider
@@ -246,7 +250,8 @@ class SiteController extends Controller
      * @return Post the loaded model
      * @throws NotFoundHttpException if the model cannot be found
      */
-    protected function findModel($id)
+    protected
+    function findModel($id)
     {
         if (($model = Post::findOne($id)) !== null) {
             return $model;
@@ -262,7 +267,8 @@ class SiteController extends Controller
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
-    public function actionUpdate($id)
+    public
+    function actionUpdate($id)
     {
         Yii::$app->session->addFlash('error', "You need to sign in first");
         return $this->actionLogin();
@@ -288,7 +294,8 @@ class SiteController extends Controller
         return $this->redirect(['view', 'id' => $post->id]);
     }
 
-    public function actionDelete($id)
+    public
+    function actionDelete($id)
     {
         if (Post::find()->select('user_id')->where(['id' => $id])->scalar() == Yii::$app->user->identity->getId()) {
             $this->findModel($id)->delete();
@@ -300,7 +307,8 @@ class SiteController extends Controller
         return $this->actionLogin();
     }
 
-    public function actionRegister()
+    public
+    function actionRegister()
     {
         $model = new User();
         if ($model->load(Yii::$app->request->post())) {
