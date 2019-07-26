@@ -25,7 +25,7 @@ $this->params['breadcrumbs'][] = $this->title;
             <?php Yii::$app->session->getFlash('notAllowed') ?>
         </div>
     <?php endif; ?>
-    <?php if (!Yii::$app->user->isGuest && Yii::$app->user->identity->getId() == $model->post ? $model->post->user_id : 0): ?>
+    <?php if (!Yii::$app->user->isGuest && isset($model->post->user_id) && Yii::$app->user->identity->getId() == $model->post->user_id): ?>
         <?= Html::a('Update', ['update', 'id' => $model->post_id], ['class' => 'btn btn-primary']) ?>
         <?= Html::a('Delete', ['delete', 'id' => $model->post_id], [
             'class' => 'btn btn-danger',

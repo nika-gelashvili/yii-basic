@@ -195,7 +195,7 @@ class SiteController extends Controller
     public
     function actionView($id)
     {
-        $postTranslation = new PostTranslation();
+        $postTranslation = PostTranslation::find()->where(['post_id' => $id])->one();
         $comment = new Comment();
         if ($comment->load(Yii::$app->request->post())) {
             $comment->created_at = new \yii\db\Expression('NOW()');
@@ -234,6 +234,7 @@ class SiteController extends Controller
                 ]
             ],
         ]);
+
 
         return $this->render('view', [
             'model' => $postTranslation,
