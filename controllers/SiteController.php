@@ -107,6 +107,20 @@ class SiteController extends Controller
                 ]
             ],
         ]);
+        //var_dump($model->load(Yii::$app->request->post()));exit;
+        if ($model->load(Yii::$app->request->post())) {
+            $dataProvider = new ActiveDataProvider([
+                'query' => PostTranslation::find()->where(['locale' => 'en-US']),
+                'pagination' => [
+                    'pageSize' => 20,
+                ],
+                'sort' => [
+                    'defaultOrder' => [
+                        'id' => SORT_ASC,
+                    ]
+                ],
+            ]);
+        }
         return $this->render('index', [
             'dataProvider' => $dataProvider,
             'post' => $model
@@ -149,40 +163,98 @@ class SiteController extends Controller
     public function actionPost()
     {
         $upload = new Image();
-        $postTranslation = new PostTranslation();
+        $postTranslation_1 = new PostTranslation();
+        $postTranslation_2 = new PostTranslation();
+        $postTranslation_3 = new PostTranslation();
         $post = new Post();
-        if ($post->load(Yii::$app->request->post()) && $upload->load(Yii::$app->request->post()) && $postTranslation->load(Yii::$app->request->post())) {
+
+
+//        $postTranslation_1->locale = 'en-US';
+//        $postTranslation_2->locale = 'ka-GE';
+//        $postTranslation_3->locale = 'ru-RU';
+//        var_dump(Yii::$app->request->post());
+//        exit;
+        //$postData = Yii::$app->request->post();
+
+        $postTranslationData = Yii::$app->request->post('PostTranslation');
+
+        foreach ($postTranslationData as $data) {
+            if ($data==1) {
+                $postTranslation_1->post_title = $data;
+                $postTranslation_1->post_description = $data;
+                $postTranslation_1->post_short_description = $data;
+                $postTranslation_1->locale = $data;
+            } elseif ($data==2) {
+                $postTranslation_2->post_title = $data;
+                $postTranslation_2->post_description = $data;
+                $postTranslation_2->post_short_description = $data;
+                $postTranslation_2->locale = $data;
+            } else {
+                $postTranslation_3->post_title = $data;
+                $postTranslation_3->post_description = $data;
+                $postTranslation_3->post_short_description = $data;
+                $postTranslation_3->locale = $data;
+            }
+        }
+
+        if ($post->load(Yii::$app->request->post()) && $upload->load(Yii::$app->request->post())) {
+
             $fileName = Yii::$app->formatter->asTimestamp(date('Y-d-m h:i:s')) . rand(1, 999);
             $upload->image = UploadedFile::getInstances($upload, 'image');
             $post->file = UploadedFile::getInstance($post, 'post_image');
             $post->user_id = Yii::$app->user->identity->getId();
-            $postTranslation->locale = 'en';
             $post->post_image = $fileName . '.' . $post->file->extension;
-            if ($post->validate()) {
-                if ($post->save()) {
-                    $post->file->saveAs('uploads/' . $post->post_image . $post->file->extension);
-                    $postTranslation->post_id = $post->id;
-                    if ($postTranslation->validate()) {
-                        if ($postTranslation->save()) {
-                            foreach ($upload->image as $image) {
-                                $model = new Image();
-                                $model->post_id = $post->id;
-                                $model->image = $fileName . '.' . $image->extension;
-                                if ($model->save(false)) {
-                                    $image->saveAs('uploads/' . $model->image);
-                                }
+
+
+            if ($post->validate() && $post->save()) {
+                $post->file->saveAs('uploads/' . $post->post_image . $post->file->extension);
+
+                $postTranslation_1->post_id = $post->id;
+                $postTranslation_2->post_id = $post->id;
+                $postTranslation_3->post_id = $post->id;
+
+                if ($postTranslation_1->validate() &&
+                    $postTranslation_2->validate() &&
+                    $postTranslation_3->validate()) {
+
+                    if ($postTranslation_1->save() && $postTranslation_2->save() && $postTranslation_3->save()) {
+                        foreach ($upload->image as $image) {
+                            $model = new Image();
+                            $model->post_id = $post->id;
+                            $model->image = $fileName . '.' . $image->extension;
+                            if ($model->save(false)) {
+                                $image->saveAs('uploads/' . $model->image);
                             }
-                            return $this->goHome();
                         }
+                        return $this->goHome();
                     }
-                    return var_dump($postTranslation->validate());
+                    return var_dump($postTranslation_1->save() && $postTranslation_2->save() && $postTranslation_3->save());
+                } else {
+                    var_dump($postTranslation_1->errors);
+                    var_dump($postTranslation_2->errors);
+                    var_dump($postTranslation_3->errors);
+                    exit;
                 }
+
+
+                //return var_dump($postTranslation_1->validate(), $postTranslation_2->validate(), $postTranslation_3->validate());
             }
+
+
         }
+
+//        $postTranslation_1->post_title =
+//        var_dump(Yii::$app->request->post());
+//        var_dump($postTranslation_2->load(Yii::$app->request->post()));
+//        var_dump($postTranslation_3->load(Yii::$app->request->post()));
+//       exit;
+
         return $this->render('post', [
             'upload' => $upload,
             'post' => $post,
-            'postTranslation' => $postTranslation
+            'postTranslation_1' => $postTranslation_1,
+            'postTranslation_2' => $postTranslation_2,
+            'postTranslation_3' => $postTranslation_3,
         ]);
     }
 
@@ -271,9 +343,6 @@ class SiteController extends Controller
     public
     function actionUpdate($id)
     {
-        Yii::$app->session->addFlash('error', "You need to sign in first");
-        return $this->actionLogin();
-
         $post = $this->findModel($id);
         $result = Post::find()
             ->select('user_id')

@@ -23,9 +23,22 @@ $this->title = 'Posts';
         <?php return Yii::$app->session->getFlash('error') ?>
     </div>
 <?php endif; ?>
+<?= Html::beginForm() ?>
+<div style="position: relative;height: 20px;width: 100%">
+    <div style="float: left">
+        <?= Html::dropDownList(
+            'post_language', //name
+            'en-GB',  //select
+            ['en-US' => 'English', 'ka-GE' => 'Georgian', 'ru-RU' => 'Russian'], //items
+            ['onchange' => 'alert($(this).val())'] //options
+        ) ?>
+    </div>
+</div>
+<?= Html::endForm() ?>
 <p style="margin-bottom: 25px; margin-top: 20px;">
     <?php echo HTML::a('Create Post', ['post'], ['class' => 'btn btn-primary']) ?>
 </p>
+
 <!--
 echo GridView::widget([
 'dataProvider' => $dataProvider,
