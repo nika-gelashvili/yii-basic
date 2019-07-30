@@ -6,11 +6,11 @@ use yii\helpers\Html; ?>
     <div>
         <h1><?= \yii\helpers\Html::encode($model->post_title) ?></h1>
 
-        <?php echo Html::img('uploads/'.$model->post->post_image, ['width' => '150px', 'height' => '100px']) ?>
+        <?php echo Html::img('uploads/' . $model->post->post_image, ['width' => '150px', 'height' => '100px']) ?>
         <p>
             <?= $model->post_description ?>
         </p>
-        <p>
+        <div style="width:350px;height: 150px">
             <?php
             $images = [];
             foreach ($model->post->images as $imageItem) {
@@ -19,12 +19,13 @@ use yii\helpers\Html; ?>
             echo \yii\bootstrap\Carousel::widget([
                 'items' => $images,
                 'options' => [
-                    'style' => [
-                        'width' => '350px',
-                        'height' => '150px',
-                    ]
+                    'style' =>
+                        [
+                            'width' => '350px',
+                            'height' => '150px',
+                        ]
                 ]
             ]) ?>
-        </p>
+        </div>
     </div>
 </div>

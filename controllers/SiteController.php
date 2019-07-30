@@ -196,6 +196,7 @@ class SiteController extends Controller
 //            var_dump($postTranslationData);
 //            exit;
 
+            $filesName = Yii::$app->formatter->asTimestamp(date('Y-d-m h:i:s')) . rand(1, 999);
             $fileName = Yii::$app->formatter->asTimestamp(date('Y-d-m h:i:s')) . rand(1, 999);
             $upload->image = UploadedFile::getInstances($upload, 'image');
             $post->file = UploadedFile::getInstance($post, 'post_image');
@@ -218,7 +219,7 @@ class SiteController extends Controller
                             foreach ($upload->image as $image) {
                                 $model = new Image();
                                 $model->post_id = $post->id;
-                                $model->image = $fileName . '.' . $image->extension;
+                                $model->image = $filesName . '.' . $image->extension;
                                 if ($model->save(false)) {
                                     $image->saveAs('uploads/' . $model->image);
                                 }
@@ -263,9 +264,9 @@ class SiteController extends Controller
      * @throws NotFoundHttpException if the model cannot be found
      */
     public
-    function actionView($id,$lang)
+    function actionView($id, $lang)
     {
-        $postTranslation = PostTranslation::find()->where(['post_id' => $id])->one();
+        $postTranslation = PostTranslation::find()->where(['post_id' => $id,'locale'=>$lang])->one();
         $comment = new Comment();
         if ($comment->load(Yii::$app->request->post())) {
             $comment->created_at = new \yii\db\Expression('NOW()');
@@ -294,7 +295,7 @@ class SiteController extends Controller
 
         $postDataProvider = new ActiveDataProvider([
             'query' => PostTranslation::find()
-                ->where(['post_id' => $id,'locale'=>$lang]),
+                ->where(['post_id' => $id, 'locale' => $lang]),
             'pagination' => [
                 'pageSize' => 20,
             ],
@@ -340,27 +341,28 @@ class SiteController extends Controller
      * @throws NotFoundHttpException if the model cannot be found
      */
     public
-    function actionUpdate($id,$lang)
+    function actionUpdate($id, $lang)
     {
-        $post = PostTranslation::find()->where(['post_id'=>$id,'locale'=>$lang])->one();
+        $postTranslation = PostTranslation::find()
+            ->where(['post_id'=>$id,'locale'=>$lang])
+            ->one();
         $result = Post::find()
             ->select('user_id')
             ->where(['id' => $id])
             ->scalar();
-
         if ($result != Yii::$app->user->identity->getId()) {
             Yii::$app->session->addFlash('error', "You are not allowed to do that");
-            return $this->redirect(['view', 'id' => $post->id]);
+            return $this->redirect(['view', 'id' => $postTranslation->post_id]);
         }
 
 
-        if (!$post->load(Yii::$app->request->post()) || !$post->save()) {
+        if (!$postTranslation->load(Yii::$app->request->post()) || !$postTranslation->save()) {
             return $this->render('update', [
-                'post' => $post,
+                'postTranslation' => $postTranslation,
             ]);
         }
 
-        return $this->redirect(['view', 'id' => $post->id]);
+        return $this->redirect(['view', 'id' => $postTranslation->post_id,'lang'=>$postTranslation->locale]);
     }
 
     public

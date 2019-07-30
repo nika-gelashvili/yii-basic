@@ -28,17 +28,17 @@ $this->params['breadcrumbs'][] = $this->title;
         'items' => [
             [
                 'label' => 'English',
-                'content' => $this->render('_posteng', ['postTranslation_eng' => $postTranslation_eng, 'form' => $form]),
+                'content' => $this->render('_posteng', ['postTranslation' => $postTranslation_eng, 'form' => $form]),
                 'active' => true,
                 'id'
             ],
             [
                 'label' => 'ქართული',
-                'content' => $this->render('_postgeo', ['postTranslation_geo' => $postTranslation_geo, 'form' => $form]),
+                'content' => $this->render('_postgeo', ['postTranslation' => $postTranslation_geo, 'form' => $form]),
             ],
             [
                 'label' => 'Русский',
-                'content' => $this->render('_postrus', ['postTranslation_rus' => $postTranslation_rus, 'form' => $form]),
+                'content' => $this->render('_postrus', ['postTranslation' => $postTranslation_rus, 'form' => $form]),
             ]
         ]
     ]) ?>

@@ -4,20 +4,24 @@ use yii\data\ActiveDataProvider;
 use yii\helpers\Html;
 
 /* @var $this yii\web\View */
-/* @var $post app\models\Post */
+/* @var $postTranslation app\models\PostTranslation */
+/* @var $upload app\models\Image */
 /* @var $dataProvider yii\data\ActiveDataProvider */
 
-$this->title = 'Update Post: ' . $post->post_title;
+
+$this->title = 'Update Post: ' . $postTranslation->post_title;
 $this->params['breadcrumbs'][] = ['label' => 'Posts', 'url' => ['index']];
-$this->params['breadcrumbs'][] = ['label' => $post->id, 'url' => ['view', 'id' => $post->id]];
+$this->params['breadcrumbs'][] = ['label' => $postTranslation->post_id, 'url' => ['view', 'id' => $postTranslation->post_id, 'lang' => $postTranslation->locale]];
 $this->params['breadcrumbs'][] = 'Update';
 ?>
 <div class="post-update">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
-    <?= $this->render('post', [
-        'post' => $post,
-    ]) ?>
+    <?php
+        echo $this->render('_updateform', [
+            'postTranslation' => $postTranslation,
+        ]);
+    ?>
 
 </div>
