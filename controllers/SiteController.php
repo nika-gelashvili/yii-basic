@@ -98,6 +98,7 @@ class SiteController extends Controller
         $model = new PostTranslation();
         $dataProvider = new ActiveDataProvider([
             'query' => PostTranslation::find(),
+            //->where(['locale' => 'en-US']),
             'pagination' => [
                 'pageSize' => 20,
             ],
@@ -163,41 +164,37 @@ class SiteController extends Controller
     public function actionPost()
     {
         $upload = new Image();
-        $postTranslation_1 = new PostTranslation();
-        $postTranslation_2 = new PostTranslation();
-        $postTranslation_3 = new PostTranslation();
+        $postTranslation_eng = new PostTranslation();
+        $postTranslation_geo = new PostTranslation();
+        $postTranslation_rus = new PostTranslation();
         $post = new Post();
-
-
-//        $postTranslation_1->locale = 'en-US';
-//        $postTranslation_2->locale = 'ka-GE';
-//        $postTranslation_3->locale = 'ru-RU';
-//        var_dump(Yii::$app->request->post());
-//        exit;
-        //$postData = Yii::$app->request->post();
 
         $postTranslationData = Yii::$app->request->post('PostTranslation');
 
-        foreach ($postTranslationData as $data) {
-            if ($data==1) {
-                $postTranslation_1->post_title = $data;
-                $postTranslation_1->post_description = $data;
-                $postTranslation_1->post_short_description = $data;
-                $postTranslation_1->locale = $data;
-            } elseif ($data==2) {
-                $postTranslation_2->post_title = $data;
-                $postTranslation_2->post_description = $data;
-                $postTranslation_2->post_short_description = $data;
-                $postTranslation_2->locale = $data;
-            } else {
-                $postTranslation_3->post_title = $data;
-                $postTranslation_3->post_description = $data;
-                $postTranslation_3->post_short_description = $data;
-                $postTranslation_3->locale = $data;
-            }
-        }
 
         if ($post->load(Yii::$app->request->post()) && $upload->load(Yii::$app->request->post())) {
+
+            foreach ($postTranslationData as $data => $value) {
+                if ($data == 'eng') {
+                    $postTranslation_eng->post_title = $value['post_title'];
+                    $postTranslation_eng->post_description = $value['post_description'];
+                    $postTranslation_eng->post_short_description = $value['post_short_description'];
+                    $postTranslation_eng->locale = $value['locale'];
+
+                } elseif ($data == 'geo') {
+                    $postTranslation_geo->post_title = $value['post_title'];
+                    $postTranslation_geo->post_description = $value['post_description'];
+                    $postTranslation_geo->post_short_description = $value['post_short_description'];
+                    $postTranslation_geo->locale = $value['locale'];
+                } else {
+                    $postTranslation_rus->post_title = $value['post_title'];
+                    $postTranslation_rus->post_description = $value['post_description'];
+                    $postTranslation_rus->post_short_description = $value['post_short_description'];
+                    $postTranslation_rus->locale = $value['locale'];
+                }
+            }
+//            var_dump($postTranslationData);
+//            exit;
 
             $fileName = Yii::$app->formatter->asTimestamp(date('Y-d-m h:i:s')) . rand(1, 999);
             $upload->image = UploadedFile::getInstances($upload, 'image');
@@ -206,40 +203,40 @@ class SiteController extends Controller
             $post->post_image = $fileName . '.' . $post->file->extension;
 
 
-            if ($post->validate() && $post->save()) {
-                $post->file->saveAs('uploads/' . $post->post_image . $post->file->extension);
+            if ($post->validate()) {
+                if ($post->save()) {
+                    $post->file->saveAs('uploads/' . $post->post_image);
 
-                $postTranslation_1->post_id = $post->id;
-                $postTranslation_2->post_id = $post->id;
-                $postTranslation_3->post_id = $post->id;
+                    $postTranslation_eng->post_id = $post->id;
+                    $postTranslation_geo->post_id = $post->id;
+                    $postTranslation_rus->post_id = $post->id;
 
-                if ($postTranslation_1->validate() &&
-                    $postTranslation_2->validate() &&
-                    $postTranslation_3->validate()) {
-
-                    if ($postTranslation_1->save() && $postTranslation_2->save() && $postTranslation_3->save()) {
-                        foreach ($upload->image as $image) {
-                            $model = new Image();
-                            $model->post_id = $post->id;
-                            $model->image = $fileName . '.' . $image->extension;
-                            if ($model->save(false)) {
-                                $image->saveAs('uploads/' . $model->image);
+                    if ($postTranslation_eng->validate() &&
+                        $postTranslation_geo->validate() &&
+                        $postTranslation_rus->validate()) {
+                        if ($postTranslation_eng->save() && $postTranslation_geo->save() && $postTranslation_rus->save()) {
+                            foreach ($upload->image as $image) {
+                                $model = new Image();
+                                $model->post_id = $post->id;
+                                $model->image = $fileName . '.' . $image->extension;
+                                if ($model->save(false)) {
+                                    $image->saveAs('uploads/' . $model->image);
+                                }
                             }
+                            return $this->goHome();
                         }
-                        return $this->goHome();
+                        return var_dump($postTranslation_eng->save() && $postTranslation_geo->save() && $postTranslation_rus->save());
+                    } else {
+                        var_dump($postTranslation_eng->errors);
+                        var_dump($postTranslation_geo->errors);
+                        var_dump($postTranslation_rus->errors);
+                        exit;
                     }
-                    return var_dump($postTranslation_1->save() && $postTranslation_2->save() && $postTranslation_3->save());
-                } else {
-                    var_dump($postTranslation_1->errors);
-                    var_dump($postTranslation_2->errors);
-                    var_dump($postTranslation_3->errors);
-                    exit;
+
+
+                    //return var_dump($postTranslation_1->validate(), $postTranslation_2->validate(), $postTranslation_3->validate());
                 }
-
-
-                //return var_dump($postTranslation_1->validate(), $postTranslation_2->validate(), $postTranslation_3->validate());
             }
-
 
         }
 
@@ -252,20 +249,21 @@ class SiteController extends Controller
         return $this->render('post', [
             'upload' => $upload,
             'post' => $post,
-            'postTranslation_1' => $postTranslation_1,
-            'postTranslation_2' => $postTranslation_2,
-            'postTranslation_3' => $postTranslation_3,
+            'postTranslation_eng' => $postTranslation_eng,
+            'postTranslation_geo' => $postTranslation_geo,
+            'postTranslation_rus' => $postTranslation_rus,
         ]);
     }
 
     /**
      * Displays a single Post model.
      * @param integer $id
+     * @param string $lang
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
     public
-    function actionView($id)
+    function actionView($id,$lang)
     {
         $postTranslation = PostTranslation::find()->where(['post_id' => $id])->one();
         $comment = new Comment();
@@ -296,7 +294,7 @@ class SiteController extends Controller
 
         $postDataProvider = new ActiveDataProvider([
             'query' => PostTranslation::find()
-                ->where(['post_id' => $id]),
+                ->where(['post_id' => $id,'locale'=>$lang]),
             'pagination' => [
                 'pageSize' => 20,
             ],
@@ -337,13 +335,14 @@ class SiteController extends Controller
      * Updates an existing Post model.
      * If update is successful, the browser will be redirected to the 'view' page.
      * @param integer $id
+     * @param string $lang
      * @return mixed
      * @throws NotFoundHttpException if the model cannot be found
      */
     public
-    function actionUpdate($id)
+    function actionUpdate($id,$lang)
     {
-        $post = $this->findModel($id);
+        $post = PostTranslation::find()->where(['post_id'=>$id,'locale'=>$lang])->one();
         $result = Post::find()
             ->select('user_id')
             ->where(['id' => $id])

@@ -26,7 +26,7 @@ $this->params['breadcrumbs'][] = $this->title;
         </div>
     <?php endif; ?>
     <?php if (!Yii::$app->user->isGuest && isset($model->post->user_id) && Yii::$app->user->identity->getId() == $model->post->user_id): ?>
-        <?= Html::a('Update', ['update', 'id' => $model->post_id], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('Update', ['update', 'id' => $model->post_id,'lang'=>$model->locale], ['class' => 'btn btn-primary']) ?>
         <?= Html::a('Delete', ['delete', 'id' => $model->post_id], [
             'class' => 'btn btn-danger',
             'data' => [
