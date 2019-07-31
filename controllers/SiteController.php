@@ -95,10 +95,11 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+
+        $option = Yii::$app->request->post('post_language');
         $model = new PostTranslation();
         $dataProvider = new ActiveDataProvider([
             'query' => PostTranslation::find(),
-            //->where(['locale' => 'en-US']),
             'pagination' => [
                 'pageSize' => 20,
             ],
@@ -109,9 +110,10 @@ class SiteController extends Controller
             ],
         ]);
         //var_dump($model->load(Yii::$app->request->post()));exit;
-        if ($model->load(Yii::$app->request->post())) {
+        if (Yii::$app->request->post('post_language')) {
             $dataProvider = new ActiveDataProvider([
-                'query' => PostTranslation::find()->where(['locale' => 'en-US']),
+                'query' => PostTranslation::find()
+                    ->where(['locale'=>$option]),
                 'pagination' => [
                     'pageSize' => 20,
                 ],

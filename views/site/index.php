@@ -25,17 +25,18 @@ $this->title = 'Posts';
 <?php endif; ?>
 <?= Html::beginForm() ?>
 <div style="position: relative;height: 20px;width: 100%">
-    <div style="float: left">
+    <div style="float: right">
         <?= Html::dropDownList(
             'post_language', //name
-            'en-GB',  //select
+            Yii::$app->request->post('post_language'),  //select
             ['en-US' => 'English', 'ka-GE' => 'Georgian', 'ru-RU' => 'Russian'], //items
-            ['onchange' => 'alert($(this).val())'] //options
-        ) ?>
+            ['onchange' => 'this.form.submit()'] //options
+        );
+        ?>
     </div>
 </div>
 <?= Html::endForm() ?>
-<p style="margin-bottom: 25px; margin-top: 20px;">
+<p style="margin-bottom: 25px; margin-top: 20px;text-align: center;">
     <?php echo HTML::a('Create Post', ['post'], ['class' => 'btn btn-primary']) ?>
 </p>
 
@@ -55,6 +56,7 @@ echo GridView::widget([
 -->
 <?php echo ListView::widget([
     'dataProvider' => $dataProvider,
-    'itemView' => '_postlist'
+    'itemView' => '_postlist',
+    'summary'=>''
 ])
 ?>
