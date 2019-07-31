@@ -20,7 +20,7 @@ use yii\helpers\StringHelper;
             <?php echo Html::encode($model->post_short_description) ?>
         </p>
     </div>
-    <p>
-        <?= Html::a('View', ['view', 'id' => $model->post->id, 'lang' => $model->locale], ['class' => 'btn btn-primary']) ?>
-    </p>
+    <div style="width: 100%;height: 35px;">
+        <?= Html::a('View', ['view', 'id' => $model->post->id, 'lang' => $model->locale], ['class' => 'btn btn-primary','style'=>['float'=>'right']]) ?>
+    </div>
 </div>
